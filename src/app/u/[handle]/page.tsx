@@ -17,32 +17,41 @@ export default function ProfilePage() {
   const [hasMore, setHasMore] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [offset, setOffset] = useState(0)
+  const [error, setError] = useState('')
+  const [postError, setPostError] = useState('')
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setError('')
+        
         // Check auth
         const { data: { user } } = await supabase.auth.getUser()
         setUser(user)
 
         // Fetch profile
         const profileRes = await fetch(`/api/profile/${handle}`)
-        if (profileRes.ok) {
-          const profileData = await profileRes.json()
-          setProfile(profileData)
-          setIsOwner(user?.id === profileData.id)
+        if (!profileRes.ok) {
+          const errorData = await profileRes.json()
+          throw new Error(errorData.error || 'Failed to fetch profile')
         }
+        const profileData = await profileRes.json()
+        setProfile(profileData)
+        setIsOwner(user?.id === profileData.id)
 
         // Fetch posts
         const postsRes = await fetch(`/api/profile/${handle}/posts?limit=10&offset=0`)
-        if (postsRes.ok) {
-          const postsData = await postsRes.json()
-          setPosts(postsData.posts || [])
-          setHasMore(postsData.hasMore)
-          setOffset(postsData.nextOffset || 10)
+        if (!postsRes.ok) {
+          const errorData = await postsRes.json()
+          throw new Error(errorData.error || 'Failed to fetch posts')
         }
+        const postsData = await postsRes.json()
+        setPosts(postsData.posts || [])
+        setHasMore(postsData.hasMore)
+        setOffset(postsData.nextOffset || 10)
       } catch (error) {
         console.error('Error fetching data:', error)
+        setError(error instanceof Error ? error.message : 'Failed to load profile')
       } finally {
         setLoading(false)
       }
@@ -52,14 +61,20 @@ export default function ProfilePage() {
   }, [handle])
 
   const handlePost = async () => {
-    if (!postText.trim() || postText.length > 280) return
+    if (!postText.trim()) return
+    
+    // Double check, though we're handing this now in the frontend so it shouldn't happen under normal circumstances
+    if (postText.length > 280) {
+      setPostError('Post is too long. Maximum 280 characters.')
+      return
+    }
 
     setPosting(true)
+    setPostError('')
     try {
-      // Get auth token
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
-        console.error('No session found')
+        setPostError('Please sign in to post')
         return
       }
 
@@ -78,10 +93,11 @@ export default function ProfilePage() {
         setPostText('')
       } else {
         const errorData = await res.json()
-        console.error('Failed to create post:', errorData)
+        setPostError(errorData.error || 'Failed to create post')
       }
     } catch (error) {
       console.error('Error creating post:', error)
+      setPostError('Network error. Please try again.')
     } finally {
       setPosting(false)
     }
@@ -98,6 +114,9 @@ export default function ProfilePage() {
         setPosts([...posts, ...postsData.posts])
         setHasMore(postsData.hasMore)
         setOffset(postsData.nextOffset || offset + 10)
+      } else {
+        const errorData = await postsRes.json()
+        console.error('Failed to load more posts:', errorData)
       }
     } catch (error) {
       console.error('Error loading more posts:', error)
@@ -108,6 +127,10 @@ export default function ProfilePage() {
 
   if (loading) {
     return <div className="p-8 text-center">Loading...</div>
+  }
+
+  if (error) {
+    return <div className="p-8 text-center text-red-600">Error: {error}</div>
   }
 
   if (!profile) {
@@ -140,12 +163,17 @@ export default function ProfilePage() {
           <h2 className="font-semibold mb-2">What's happening?</h2>
           <textarea
             placeholder="Share your thoughts..."
-            className="w-full p-2 border rounded mb-2"
+            className="w-full p-2 border rounded mb-2 resize-none"
             rows={3}
             maxLength={280}
             value={postText}
             onChange={(e) => setPostText(e.target.value)}
           />
+          {postError && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded mb-2 text-sm">
+              {postError}
+            </div>
+          )}
           <div className="flex justify-between">
             <span className={`text-sm ${postText.length > 260 ? 'text-red-500' : 'text-gray-500'}`}>
               {postText.length}/280
@@ -159,7 +187,7 @@ export default function ProfilePage() {
               disabled={!postText.trim() || postText.length > 280 || posting}
               onClick={handlePost}
             >
-              {posting ? 'Posting...' : 'Post'}
+              {posting ? 'Posting...' : postText.length > 280 ? 'Too long' : 'Post'}
             </button>
           </div>
         </div>
@@ -191,7 +219,7 @@ export default function ProfilePage() {
                       <span>·</span>
                       <span>{new Date(post.created_at).toLocaleDateString()}</span>
                     </div>
-                    <p>{post.text}</p>
+                    <p className="break-words whitespace-pre-wrap">{post.text}</p>
                   </div>
                 </div>
               </div>
