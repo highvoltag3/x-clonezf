@@ -2,40 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
-import { Profile, Post } from '@/lib/supabase'
-
-const mockProfile: Profile = {
-  id: '1',
-  handle: 'darionovoa',
-  name: 'Dario Novoa',
-  avatar_url: null,
-  bio: 'Software developer',
-  created_at: '2025-09-07T00:00:00Z'
-}
-
-const mockPosts: Post[] = [
-  {
-    id: '1',
-    author_id: '1',
-    text: 'Just built my first Twitter clone! 🚀',
-    created_at: '2025-09-07T10:30:00Z',
-    profiles: mockProfile
-  },
-  {
-    id: '2',
-    author_id: '1',
-    text: 'Working on real-time features and pagination.',
-    created_at: '2025-09-07T09:15:00Z',
-    profiles: mockProfile
-  },
-  {
-    id: '3',
-    author_id: '1',
-    text: 'Zellerfeld is the best! Can\'t wait to merge my love for 3D and Code',
-    created_at: '2025-09-07T08:45:00Z',
-    profiles: mockProfile
-  }
-]
+import { Profile, Post, supabase } from '@/lib/supabase'
 
 export default function ProfilePage() {
   const params = useParams()
@@ -44,13 +11,76 @@ export default function ProfilePage() {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [isOwner, setIsOwner] = useState(false)
+  const [postText, setPostText] = useState('')
+  const [posting, setPosting] = useState(false)
+  const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
-    setProfile(mockProfile)
-    setPosts(mockPosts)
-    setLoading(false)
-    setIsOwner(handle === 'darionovoa')
+    const fetchData = async () => {
+      try {
+        // Check auth
+        const { data: { user } } = await supabase.auth.getUser()
+        setUser(user)
+
+        // Fetch profile
+        const profileRes = await fetch(`/api/profile/${handle}`)
+        if (profileRes.ok) {
+          const profileData = await profileRes.json()
+          setProfile(profileData)
+          setIsOwner(user?.id === profileData.id)
+        }
+
+        // Fetch posts
+        const postsRes = await fetch(`/api/profile/${handle}/posts`)
+        if (postsRes.ok) {
+          const postsData = await postsRes.json()
+          setPosts(postsData.posts || [])
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
   }, [handle])
+
+  const handlePost = async () => {
+    if (!postText.trim() || postText.length > 280) return
+
+    setPosting(true)
+    try {
+      // Get auth token
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        console.error('No session found')
+        return
+      }
+
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ text: postText }),
+      })
+
+      if (res.ok) {
+        const newPost = await res.json()
+        setPosts([newPost, ...posts])
+        setPostText('')
+      } else {
+        const errorData = await res.json()
+        console.error('Failed to create post:', errorData)
+      }
+    } catch (error) {
+      console.error('Error creating post:', error)
+    } finally {
+      setPosting(false)
+    }
+  }
 
   if (loading) {
     return <div className="p-8 text-center">Loading...</div>
@@ -89,11 +119,23 @@ export default function ProfilePage() {
             className="w-full p-2 border rounded mb-2"
             rows={3}
             maxLength={280}
+            value={postText}
+            onChange={(e) => setPostText(e.target.value)}
           />
           <div className="flex justify-between">
-            <span className="text-sm text-gray-500">0/280</span>
-            <button className="bg-blue-500 text-white px-4 py-1 rounded" disabled>
-              Post
+            <span className={`text-sm ${postText.length > 260 ? 'text-red-500' : 'text-gray-500'}`}>
+              {postText.length}/280
+            </span>
+            <button 
+              className={`px-4 py-1 rounded ${
+                postText.trim() && postText.length <= 280 && !posting
+                  ? 'bg-blue-500 text-white hover:bg-blue-600'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+              disabled={!postText.trim() || postText.length > 280 || posting}
+              onClick={handlePost}
+            >
+              {posting ? 'Posting...' : 'Post'}
             </button>
           </div>
         </div>
