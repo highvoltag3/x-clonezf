@@ -8,10 +8,10 @@ export async function GET(
   try {
     const { handle } = params
     const { searchParams } = new URL(request.url)
-    const cursor = searchParams.get('cursor')
     const limit = parseInt(searchParams.get('limit') || '10')
+    const offset = parseInt(searchParams.get('offset') || '0')
 
-    // First get the profile to get the author_id
+    // Get profile
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('id')
@@ -19,14 +19,11 @@ export async function GET(
       .single()
 
     if (profileError) {
-      return NextResponse.json(
-        { error: 'Profile not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
     }
 
-    // Build query for posts
-    let query = supabase
+    // Get posts with pagination
+    const { data: posts, error: postsError } = await supabase
       .from('posts')
       .select(`
         *,
@@ -39,25 +36,16 @@ export async function GET(
       `)
       .eq('author_id', profile.id)
       .order('created_at', { ascending: false })
-      .limit(limit)
-
-    // Add cursor-based pagination if provided
-    if (cursor) {
-      query = query.lt('created_at', cursor)
-    }
-
-    const { data: posts, error: postsError } = await query
+      .range(offset, offset + limit - 1)
 
     if (postsError) {
-      return NextResponse.json(
-        { error: 'Failed to fetch posts' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 })
     }
 
-    return NextResponse.json({
+    return NextResponse.json({ 
       posts,
-      nextCursor: posts.length === limit ? posts[posts.length - 1]?.created_at : null
+      hasMore: posts.length === limit,
+      nextOffset: offset + limit
     })
   } catch (error) {
     console.error('Error fetching posts:', error)

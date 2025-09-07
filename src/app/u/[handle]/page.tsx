@@ -14,6 +14,9 @@ export default function ProfilePage() {
   const [postText, setPostText] = useState('')
   const [posting, setPosting] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [hasMore, setHasMore] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [offset, setOffset] = useState(0)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -31,10 +34,12 @@ export default function ProfilePage() {
         }
 
         // Fetch posts
-        const postsRes = await fetch(`/api/profile/${handle}/posts`)
+        const postsRes = await fetch(`/api/profile/${handle}/posts?limit=10&offset=0`)
         if (postsRes.ok) {
           const postsData = await postsRes.json()
           setPosts(postsData.posts || [])
+          setHasMore(postsData.hasMore)
+          setOffset(postsData.nextOffset || 10)
         }
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -79,6 +84,25 @@ export default function ProfilePage() {
       console.error('Error creating post:', error)
     } finally {
       setPosting(false)
+    }
+  }
+
+  const loadMore = async () => {
+    if (loadingMore || !hasMore) return
+    
+    setLoadingMore(true)
+    try {
+      const postsRes = await fetch(`/api/profile/${handle}/posts?limit=10&offset=${offset}`)
+      if (postsRes.ok) {
+        const postsData = await postsRes.json()
+        setPosts([...posts, ...postsData.posts])
+        setHasMore(postsData.hasMore)
+        setOffset(postsData.nextOffset || offset + 10)
+      }
+    } catch (error) {
+      console.error('Error loading more posts:', error)
+    } finally {
+      setLoadingMore(false)
     }
   }
 
@@ -175,6 +199,19 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
+
+      {/* Load More Button */}
+      {hasMore && (
+        <div className="mt-6 text-center">
+          <button 
+            className="bg-white text-gray-700 px-6 py-2 rounded border border-gray-300 hover:bg-gray-50 disabled:opacity-50"
+            onClick={loadMore}
+            disabled={loadingMore}
+          >
+            {loadingMore ? 'Loading...' : 'Load more posts'}
+          </button>
+        </div>
+      )}
     </div>
   )
 }
