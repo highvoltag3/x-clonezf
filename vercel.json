@@ -1,0 +1,8 @@
+// QUick and dirty vercel config to handle the API routes
+{
+  "functions": {
+    "src/app/api/**/*.ts": {
+      "maxDuration": 10
+    }
+  }
+}
