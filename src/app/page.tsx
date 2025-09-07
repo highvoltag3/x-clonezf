@@ -18,7 +18,7 @@ export default function HomePage() {
         } else {
           router.push('/sign-in')
         }
-      } catch (error) {
+      } catch {
         router.push('/sign-in')
       } finally {
         setLoading(false)

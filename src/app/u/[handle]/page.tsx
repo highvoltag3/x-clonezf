@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
+import Image from 'next/image'
 import { Profile, Post, supabase } from '@/lib/supabase'
 
 export default function ProfilePage() {
@@ -13,7 +14,7 @@ export default function ProfilePage() {
   const [isOwner, setIsOwner] = useState(false)
   const [postText, setPostText] = useState('')
   const [posting, setPosting] = useState(false)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<{ id: string } | null>(null)
   const [hasMore, setHasMore] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [offset, setOffset] = useState(0)
@@ -144,7 +145,7 @@ export default function ProfilePage() {
         <div className="flex gap-4">
           <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
             {profile.avatar_url ? (
-              <img src={profile.avatar_url} alt={profile.name} className="w-full h-full rounded-full" />
+              <Image src={profile.avatar_url} alt={profile.name || profile.handle} width={64} height={64} className="w-full h-full rounded-full" />
             ) : (
               <span className="text-xl font-bold">{(profile.name || profile.handle)[0]}</span>
             )}
@@ -160,7 +161,7 @@ export default function ProfilePage() {
       {/* Compose */}
       {isOwner && (
         <div className="bg-white border rounded p-4 mb-4">
-          <h2 className="font-semibold mb-2">What's happening?</h2>
+            <h2 className="font-semibold mb-2">What&apos;s happening?</h2>
           <textarea
             placeholder="Share your thoughts..."
             className="w-full p-2 border rounded mb-2 resize-none"
@@ -207,7 +208,7 @@ export default function ProfilePage() {
                 <div className="flex gap-3">
                   <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
                     {post.profiles?.avatar_url ? (
-                      <img src={post.profiles.avatar_url} alt="" className="w-full h-full rounded-full" />
+                      <Image src={post.profiles.avatar_url} alt={post.profiles.name || post.profiles.handle || 'User'} width={40} height={40} className="w-full h-full rounded-full" />
                     ) : (
                       <span className="text-sm font-bold">{(post.profiles?.name || 'U')[0]}</span>
                     )}

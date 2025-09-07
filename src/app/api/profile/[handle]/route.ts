@@ -3,10 +3,10 @@ import { supabase } from '@/lib/supabase'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { handle: string } }
+  { params }: { params: Promise<{ handle: string }> }
 ) {
   try {
-    const { handle } = params
+    const { handle } = await params
     console.log('API: Looking for profile with handle:', handle)
 
     const { data: profile, error: profileError } = await supabase

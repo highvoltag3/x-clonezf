@@ -3,10 +3,10 @@ import { supabase } from '@/lib/supabase'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { handle: string } }
+  { params }: { params: Promise<{ handle: string }> }
 ) {
   try {
-    const { handle } = params
+    const { handle } = await params
     const { searchParams } = new URL(request.url)
     const limit = parseInt(searchParams.get('limit') || '10')
     const offset = parseInt(searchParams.get('offset') || '0')
