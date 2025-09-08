@@ -149,6 +149,10 @@ See `/lib/supabase.ts` for the schema and trigger function.
 
 ## What I would do differently if I had more time
 
+**Feature**
+
+- Change/Customize username
+
 ### Architecture & Code Quality
 
 **State Management**
