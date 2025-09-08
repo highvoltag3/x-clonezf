@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import { Profile, Post, supabase } from '@/lib/supabase'
 import { getGravatarUrl } from '@/lib/gravatar'
+import Navigation from '@/components/Navigation'
 
 export default function ProfilePage() {
   const params = useParams()
@@ -15,45 +16,35 @@ export default function ProfilePage() {
   const [isOwner, setIsOwner] = useState(false)
   const [postText, setPostText] = useState('')
   const [posting, setPosting] = useState(false)
-  const [user, setUser] = useState<{ id: string } | null>(null)
+  const [, setUser] = useState<{ id: string } | null>(null)
   const [hasMore, setHasMore] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [offset, setOffset] = useState(0)
   const [error, setError] = useState('')
   const [postError, setPostError] = useState('')
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         setError('')
-        
-        // Check auth
+
         const { data: { user } } = await supabase.auth.getUser()
         setUser(user)
 
-        // Fetch profile
         const profileRes = await fetch(`/api/profile/${handle}`)
-        if (!profileRes.ok) {
-          const errorData = await profileRes.json()
-          throw new Error(errorData.error || 'Failed to fetch profile')
-        }
+        if (!profileRes.ok) throw new Error('Profile not found')
         const profileData = await profileRes.json()
         setProfile(profileData)
         setIsOwner(user?.id === profileData.id)
 
-        // Fetch posts
         const postsRes = await fetch(`/api/profile/${handle}/posts?limit=10&offset=0`)
-        if (!postsRes.ok) {
-          const errorData = await postsRes.json()
-          throw new Error(errorData.error || 'Failed to fetch posts')
-        }
+        if (!postsRes.ok) throw new Error('Failed to fetch posts')
         const postsData = await postsRes.json()
         setPosts(postsData.posts || [])
         setHasMore(postsData.hasMore)
         setOffset(postsData.nextOffset || 10)
       } catch (error) {
-        console.error('Error fetching data:', error)
-        setError(error instanceof Error ? error.message : 'Failed to load profile')
+        console.error('Error:', error)
+        setError('Failed to load profile')
       } finally {
         setLoading(false)
       }
@@ -96,17 +87,13 @@ export default function ProfilePage() {
         `)
         .single()
 
-      if (error) {
-        console.error('Error creating post:', error)
-        setPostError('Failed to create post')
-        return
-      }
+      if (error) throw error
 
       setPosts([post, ...posts])
       setPostText('')
     } catch (error) {
-      console.error('Error creating post:', error)
-      setPostError('Network error. Please try again.')
+      console.error('Error:', error)
+      setPostError('Failed to create post')
     } finally {
       setPosting(false)
     }
@@ -148,12 +135,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-2xl mx-auto px-4 py-3">
-          <h1 className="text-xl font-bold text-gray-900">Profile</h1>
-        </div>
-      </div>
+      <Navigation />
       
       <div className="max-w-2xl mx-auto">
         {/* Profile Header */}
@@ -254,7 +236,7 @@ export default function ProfilePage() {
                         <span className="font-semibold text-gray-900">{post.profiles?.name || post.profiles?.handle}</span>
                         <span>@{post.profiles?.handle}</span>
                         <span>·</span>
-                        <span>{new Date(post.created_at).toLocaleDateString()}</span>
+                        <span suppressHydrationWarning>{new Date(post.created_at).toLocaleDateString()}</span>
                       </div>
                       <p className="text-gray-900 break-words whitespace-pre-wrap leading-relaxed">{post.text}</p>
                     </div>

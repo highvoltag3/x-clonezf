@@ -11,7 +11,6 @@ export async function GET(
     const limit = parseInt(searchParams.get('limit') || '10')
     const offset = parseInt(searchParams.get('offset') || '0')
 
-    // Get profile
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('id')
@@ -21,20 +20,18 @@ export async function GET(
     if (profileError) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
     }
-
-    // Get posts with pagination
     const { data: posts, error: postsError } = await supabase
       .from('posts')
-                  .select(`
-                    *,
-                    profiles!posts_author_id_fkey (
-                      id,
-                      handle,
-                      name,
-                      avatar_url,
-                      email
-                    )
-                  `)
+      .select(`
+        *,
+        profiles!posts_author_id_fkey (
+          id,
+          handle,
+          name,
+          avatar_url,
+          email
+        )
+      `)
       .eq('author_id', profile.id)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
