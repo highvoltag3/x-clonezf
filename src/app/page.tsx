@@ -14,7 +14,7 @@ export default function HomePage() {
         const { data: { user } } = await supabase.auth.getUser()
         
         if (user) {
-          router.push('/u/darionovoa')
+          router.push('/feed')
         } else {
           router.push('/sign-in')
         }
