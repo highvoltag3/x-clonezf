@@ -7,6 +7,7 @@ CREATE TABLE profiles (
   name VARCHAR(100),
   avatar_url TEXT,
   bio TEXT,
+  email TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -39,12 +40,13 @@ CREATE POLICY "posts_delete" ON posts FOR DELETE USING (auth.uid() = author_id);
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, handle, name, avatar_url)
+  INSERT INTO public.profiles (id, handle, name, avatar_url, email)
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'handle', 'user_' || substr(NEW.id::text, 1, 8)),
     COALESCE(NEW.raw_user_meta_data->>'name', NEW.email),
-    NEW.raw_user_meta_data->>'avatar_url'
+    NEW.raw_user_meta_data->>'avatar_url',
+    NEW.email
   );
   RETURN NEW;
 END;

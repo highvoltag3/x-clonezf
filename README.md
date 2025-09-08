@@ -1,4 +1,4 @@
-# Zellerfeld assesment - X/ Twitter Clone
+# Zellerfeld assessment - X/ Twitter Clone
 
 A simple Twitter-like social media app built using Next.js, TypeScript, and Supabase.
 
@@ -7,12 +7,12 @@ A simple Twitter-like social media app built using Next.js, TypeScript, and Supa
 - This view should show basic information
   - [x] username, 
   - [x] profile picture placeholder, etc.
-    - [ ]  Personal challenge, if time permits add gravator support
+    - [x]  Personal challenge, if time permits add gravatar support
   - [x]  and display a feed of posts associated with that profile.
 
 **Feed:**
 - Implement a feed that lists posts. Posts can be simple texts (consider a character limit, e.g., 280 characters).
-  - Took the liberty of making this a real-time shows posts in reverse chronological order easilyu thanks to supabase
+  - Took the liberty of making this a real-time feed that shows posts in reverse chronological order easily thanks to Supabase
 
 **Post Creation**
 - Allow users to create new posts via the UI.
@@ -25,15 +25,15 @@ A simple Twitter-like social media app built using Next.js, TypeScript, and Supa
 - Magic link authentication with Supabase
 
 **Responsive Design** 
-- Did my best to keep it responsive (main reason I chose to use Tailwinds and not just do my own styles / aside form speed)
+- Did my best to keep it responsive (main reason I chose to use Tailwinds and not just do my own styles / aside from speed)
 
 ## Tech Stack used:
-
-**Frontend**: Next.js 15, TypeScript, Tailwind CSS
-**Backend**: Next.js API Routes
-**Database**: Supabase
-**Authentication**: Leveraged Supabase Auth
-**Deployment**: Vercel for simplicity 
+> This is the stack I've decided to use, most of the stack decisions come from languages and frameworks I'm comfortable with or thought would be the right choice for the amount of time I was asked to take for this exercise (4-6hr).
+- **Frontend**: Next.js 15, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes
+- **Database**: Supabase
+- **Authentication**: Leveraged Supabase Auth
+- **Deployment**: Vercel for simplicity 
 
 ## Getting Started
 
@@ -80,7 +80,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Data model
 ![Data Model Screenshot](public/datamodelscreenshot.png)
-See `/lib/supabase.ts` for the schema and tigger function I created.
+See `/lib/supabase.ts` for the schema and trigger function.
 
 ## API Endpoints
 
@@ -113,6 +113,8 @@ See `/lib/supabase.ts` for the schema and tigger function I created.
 
 ## Architecture
 
+### High-level System Architecture
+![High-Level Arch Diagram](<public/Highlevel_system_diagram_Mermaid Chart-2025-09-08-022022.png>)
 - **Frontend**: Next.js App Router with TypeScript
 - **API**: Next.js API routes with Supabase client
 - **Database**: PostgreSQL with Row Level Security (RLS)
@@ -123,5 +125,5 @@ See `/lib/supabase.ts` for the schema and tigger function I created.
 
 - Posts are limited to 280 characters (enforced client and server-side)
 - Pagination uses offset-based approach for simplicity
-- Authentication uses JWT tokens passed in Authorization headers
+- Authentication uses Supabase's built-in client-side authentication with RLS policies
 - RLS policies ensure users can only modify their own content

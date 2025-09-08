@@ -25,15 +25,16 @@ export async function GET(
     // Get posts with pagination
     const { data: posts, error: postsError } = await supabase
       .from('posts')
-      .select(`
-        *,
-        profiles!posts_author_id_fkey (
-          id,
-          handle,
-          name,
-          avatar_url
-        )
-      `)
+                  .select(`
+                    *,
+                    profiles!posts_author_id_fkey (
+                      id,
+                      handle,
+                      name,
+                      avatar_url,
+                      email
+                    )
+                  `)
       .eq('author_id', profile.id)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)

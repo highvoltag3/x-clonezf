@@ -12,6 +12,7 @@ export interface Profile {
   name: string | null
   avatar_url: string | null
   bio: string | null
+  email: string | null
   created_at: string
 }
 

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import { Profile, Post, supabase } from '@/lib/supabase'
+import { getGravatarUrl } from '@/lib/gravatar'
 
 export default function ProfilePage() {
   const params = useParams()
@@ -162,6 +163,8 @@ export default function ProfilePage() {
               <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
                 {profile.avatar_url ? (
                   <Image src={profile.avatar_url} alt={profile.name || profile.handle} width={80} height={80} className="w-full h-full rounded-full object-cover" />
+                ) : profile.email ? (
+                  <Image src={getGravatarUrl(profile.email, 80)} alt={profile.name || profile.handle} width={80} height={80} className="w-full h-full rounded-full object-cover" />
                 ) : (
                   <span className="text-2xl font-bold text-gray-600">{(profile.name || profile.handle)[0].toUpperCase()}</span>
                 )}
@@ -183,6 +186,8 @@ export default function ProfilePage() {
               <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
                 {profile.avatar_url ? (
                   <Image src={profile.avatar_url} alt={profile.name || profile.handle} width={40} height={40} className="w-full h-full rounded-full object-cover" />
+                ) : profile.email ? (
+                  <Image src={getGravatarUrl(profile.email, 40)} alt={profile.name || profile.handle} width={40} height={40} className="w-full h-full rounded-full object-cover" />
                 ) : (
                   <span className="text-sm font-bold text-gray-600">{(profile.name || profile.handle)[0].toUpperCase()}</span>
                 )}
@@ -238,6 +243,8 @@ export default function ProfilePage() {
                     <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
                       {post.profiles?.avatar_url ? (
                         <Image src={post.profiles.avatar_url} alt={post.profiles.name || post.profiles.handle || 'User'} width={40} height={40} className="w-full h-full rounded-full object-cover" />
+                      ) : post.profiles?.email ? (
+                        <Image src={getGravatarUrl(post.profiles.email, 40)} alt={post.profiles.name || post.profiles.handle || 'User'} width={40} height={40} className="w-full h-full rounded-full object-cover" />
                       ) : (
                         <span className="text-sm font-bold text-gray-600">{(post.profiles?.name || 'U')[0].toUpperCase()}</span>
                       )}
