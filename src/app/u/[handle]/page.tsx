@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Profile, Post, supabase } from '@/lib/supabase'
 import { getGravatarUrl } from '@/lib/gravatar'
@@ -9,6 +9,7 @@ import Navigation from '@/components/Navigation'
 
 export default function ProfilePage() {
   const params = useParams()
+  const router = useRouter()
   const handle = params.handle as string
   const [profile, setProfile] = useState<Profile | null>(null)
   const [posts, setPosts] = useState<Post[]>([])
@@ -152,9 +153,21 @@ export default function ProfilePage() {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <h1 className="text-2xl font-bold text-gray-900 truncate">{profile.name || profile.handle}</h1>
-                <p className="text-gray-500 text-lg">@{profile.handle}</p>
-                {profile.bio && <p className="mt-3 text-gray-700 leading-relaxed">{profile.bio}</p>}
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-2xl font-bold text-gray-900 truncate">{profile.name || profile.handle}</h1>
+                    <p className="text-gray-500 text-lg">@{profile.handle}</p>
+                    {profile.bio && <p className="mt-3 text-gray-700 leading-relaxed">{profile.bio}</p>}
+                  </div>
+                  {isOwner && (
+                    <button
+                      onClick={() => router.push('/edit-profile')}
+                      className="ml-4 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      Edit Profile
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -178,6 +191,7 @@ export default function ProfilePage() {
                 <textarea
                   placeholder="Share your thoughts..."
                   className="w-full p-3 border-0 resize-none text-lg placeholder-gray-500 focus:outline-none"
+                  style={{ color: '#121212' }}
                   rows={3}
                   maxLength={280}
                   value={postText}

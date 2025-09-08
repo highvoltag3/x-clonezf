@@ -4,10 +4,13 @@ import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import { useModal } from '@/hooks/useModal'
+import ComposeModal from './ComposeModal'
 
 export default function Navigation() {
   const router = useRouter()
   const pathname = usePathname()
+  const modal = useModal()
   const [user, setUser] = useState<{ id: string } | null>(null)
   const [profileHandle, setProfileHandle] = useState<string | null>(null)
 
@@ -86,9 +89,20 @@ export default function Navigation() {
                 Profile
               </Link>
             )}
+            {pathname === '/edit-profile' && (
+              <span className="px-4 py-2.5 rounded-full text-sm font-semibold bg-blue-500 text-white shadow-md transform scale-105">
+                Edit Profile
+              </span>
+            )}
           </div>
           
           <div className="flex items-center space-x-3">
+            <button
+              onClick={modal.open}
+              className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-blue-500 hover:text-white rounded-full transition-all duration-200 hover:scale-105"
+            >
+              Tweet
+            </button>
             <div className="hidden sm:block text-sm text-gray-500 font-medium">
               @{profileHandle}
             </div>
@@ -101,6 +115,8 @@ export default function Navigation() {
           </div>
         </div>
       </div>
+
+      <ComposeModal isOpen={modal.isOpen} onClose={modal.close} />
     </nav>
   )
 }
