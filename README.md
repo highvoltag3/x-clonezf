@@ -1,11 +1,11 @@
-# Zellerfeld assessment - X/ Twitter Clone
+# Zellerfeld assessment - X/Twitter Clone
 
 A simple Twitter-like social media app built using Next.js, TypeScript, and Supabase.
 
 ## Features / Requirements
 **User Profiles:**
 - This view should show basic information
-  - [x] username, 
+  - [x] username
   - [x] profile picture placeholder, etc.
     - [x]  Personal challenge, if time permits add gravatar support
   - [x]  and display a feed of posts associated with that profile.

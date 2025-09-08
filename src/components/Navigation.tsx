@@ -60,16 +60,16 @@ export default function Navigation() {
   if (!user) return null
 
   return (
-    <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-      <div className="max-w-2xl mx-auto px-4 py-3">
+    <nav className="bg-white/95 backdrop-blur-md border-b border-gray-200/60 sticky top-0 z-50 shadow-sm">
+      <div className="max-w-2xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex space-x-6">
+          <div className="flex items-center space-x-1">
             <Link 
               href="/feed"
-              className={`text-sm font-medium ${
+              className={`px-4 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${
                 pathname === '/feed' 
-                  ? 'text-blue-600' 
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'bg-blue-500 text-white shadow-md transform scale-105' 
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 hover:scale-105'
               }`}
             >
               Feed
@@ -77,24 +77,30 @@ export default function Navigation() {
             {profileHandle && (
               <Link 
                 href={`/u/${profileHandle}`}
-                className={`text-sm font-medium ${
+                className={`px-4 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${
                   pathname.startsWith('/u/') 
-                    ? 'text-blue-600' 
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'bg-blue-500 text-white shadow-md transform scale-105' 
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 hover:scale-105'
                 }`}
               >
                 Profile
               </Link>
             )}
           </div>
-          <button
-            onClick={handleSignOut}
-            className="text-sm text-gray-500 hover:text-gray-700"
-          >
-            Sign Out
-          </button>
+          
+          <div className="flex items-center space-x-3">
+            <div className="hidden sm:block text-sm text-gray-500 font-medium">
+              @{profileHandle}
+            </div>
+            <button
+              onClick={handleSignOut}
+              className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-red-50 hover:text-red-600 rounded-full transition-all duration-200 hover:scale-105 border border-transparent hover:border-red-200"
+            >
+              Sign Out
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </nav>
   )
 }
