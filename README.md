@@ -101,6 +101,11 @@ See `/lib/supabase.ts` for the schema and trigger function.
 - `GET /api/profile/[handle]` - Get user profile by handle
 - `GET /api/profile/[handle]/posts` - Get user's posts with pagination
 
+> EDIT Sept 8th 12:25pm PST (next day after delivering it).
+> I just realized I forgot to add the feed API here, hopefully is ok for me to edit the doc after delivery
+
+- `GET /api/feed/` - Get all (Global) posts with pagination
+
 ### Posts
 
 - Post creation is handled client-side using Supabase's built-in authentication and RLS policies
