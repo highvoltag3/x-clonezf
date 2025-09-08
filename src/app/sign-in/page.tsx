@@ -34,38 +34,62 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-20 p-4">
-      <h1 className="text-2xl font-bold mb-6 text-center">Sign In</h1>
-      
-      <form onSubmit={handleSignIn} className="space-y-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
         <div>
-          <label className="block text-sm font-medium mb-1">Email</label>
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border rounded"
-            placeholder="Enter your email"
-          />
+          <h1 className="text-3xl font-bold text-center text-gray-900">Welcome back</h1>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Sign in to your account with a magic link
+          </p>
         </div>
         
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-500 text-white p-2 rounded disabled:opacity-50"
-        >
-          {loading ? 'Sending...' : 'Send Magic Link'}
-        </button>
-      </form>
-      
-      {message && (
-        <div className={`mt-4 p-2 rounded ${
-          message.includes('Error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-        }`}>
-          {message}
-        </div>
-      )}
+        <form onSubmit={handleSignIn} className="mt-8 space-y-6">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              Email address
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter your email"
+            />
+          </div>
+          
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Sending magic link...' : 'Send Magic Link'}
+          </button>
+        </form>
+        
+        {message && (
+          <div className={`mt-4 p-4 rounded-lg ${
+            message.includes('Error') 
+              ? 'bg-red-50 border border-red-200 text-red-700' 
+              : 'bg-green-50 border border-green-200 text-green-700'
+          }`}>
+            <div className="flex">
+              <div className="flex-shrink-0">
+                {message.includes('Error') ? (
+                  <span className="text-red-400">⚠️</span>
+                ) : (
+                  <span className="text-green-400">✅</span>
+                )}
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium">{message}</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

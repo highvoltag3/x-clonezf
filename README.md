@@ -89,7 +89,7 @@ See `/lib/supabase.ts` for the schema and tigger function I created.
 - `GET /api/profile/[handle]/posts` - Get user's posts with pagination
 
 ### Posts
-- `POST /api/posts` - Create a new post (requires authentication)
+- Post creation is handled client-side using Supabase's built-in authentication and RLS policies
 
 ### Query Parameters
 - `limit` - Number of posts to return (default: 10)
